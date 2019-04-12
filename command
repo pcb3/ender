@@ -4,5 +4,19 @@
 ; A space-war simulation
 
 ; requires
-(require htdp/universe)
-(require htdp/image)
+(require 2htdp/universe)
+(require 2htdp/image)
+
+; physical constants
+(define RADIUS 20)
+(define WIDTH 20)
+(define HEIGHT 20)
+(define SCENE-SIZE (* WIDTH HEIGHT))
+
+; graphical constants
+(define MT (empty-scene SCENE-SIZE SCENE-SIZE 'black))
+(define SHIP (circle RADIUS 'solid 'gray))
+(define CAPSULE (rectangle (/ RADIUS 4) RADIUS 'solid 'gray))
+(define SURFACE (rectangle (- SCENE-SIZE 1) (- HEIGHT 1) 'solid 'lightgray))
+(define SCENE
+  (place-image SURFACE (/ SCENE-SIZE 2) (- SCENE-SIZE (/ HEIGHT 2)) MT))
