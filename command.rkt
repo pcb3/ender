@@ -108,15 +108,80 @@
                             (rest (tank-missile (world-tank w))))
                  (world-ufo w))))]))
 
+; World Key -> World
+; consumes a world and a key and outputs a new world
+
+(check-expect (control (make-world (make-tank (make-posn 0 0) '())
+                                   (make-ufo (make-posn 1 1) "")) "")
+              (make-world (make-tank (make-posn 0 0) '())
+                                   (make-ufo (make-posn 1 1) "")))
+
+(check-expect (control (make-world (make-tank (make-posn 0 0) '())
+                                   (make-ufo (make-posn 1 1) "")) " ")
+              (make-world (make-tank (make-posn 0 0)
+                                     (cons (make-posn 0 0) '()))
+                                   (make-ufo (make-posn 1 1) "")))
+
+(check-expect (control (make-world (make-tank (make-posn 0 0) '())
+                                   (make-ufo (make-posn 1 1) "")) "right")
+              (make-world (make-tank (make-posn 1 0) '())
+                                   (make-ufo (make-posn 1 1) "")))
+
+(check-expect (control (make-world (make-tank (make-posn 3 0) '())
+                                   (make-ufo (make-posn 1 1) "")) "left")
+              (make-world (make-tank (make-posn 2 0) '())
+                                   (make-ufo (make-posn 1 1) "")))
+
+(define (fn-control w key)
+  (cond
+    [(string=? key "right")
+     (make-world
+      (make-tank (make-posn (... (posn-x (tank-position (world-tank w))))
+                 (posn-y (tank-position (world-tank w))))
+                 (tank-missile (world-tank w)))
+      (world-ufo w))]
+    [(string=? key "left")
+     (make-world
+      (make-tank (make-posn (... (posn-x (tank-position (world-tank w))))
+                 (posn-y (tank-position (world-tank w))))
+                 (tank-missile (world-tank w)))
+      (world-ufo w))]
+    [(string=? key " ")
+     (make-world
+      (make-tank (tank-position (world-tank w))
+                 (... (make-posn 0 0) (tank-missile (world-tank w))))
+      (world-ufo w))]
+    [else w]))
+
+(define (control w key)
+   (cond
+    [(string=? key "right")
+     (make-world
+      (make-tank (make-posn (add1 (posn-x (tank-position (world-tank w))))
+                 (posn-y (tank-position (world-tank w))))
+                 (tank-missile (world-tank w)))
+      (world-ufo w))]
+    [(string=? key "left")
+     (make-world
+      (make-tank (make-posn (sub1 (posn-x (tank-position (world-tank w))))
+                 (posn-y (tank-position (world-tank w))))
+                 (tank-missile (world-tank w)))
+      (world-ufo w))]
+    [(string=? key " ")
+     (make-world
+      (make-tank (tank-position (world-tank w))
+                 (cons (make-posn 0 0) (tank-missile (world-tank w))))
+      (world-ufo w))]
+    [else w]))
 
 (define (ender-main rate)
   (big-bang WORLD0
     ;[on-tick tock rate]
     [to-draw render-world]
-    ;[on-key control]
+    [on-key control]
     ;[stop-when last-world-connected? last-picture]
     [state #t]
     [name "Ender"]))
 
 ; usage
- (ender-main 1)
+; (ender-main 1)
