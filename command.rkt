@@ -14,9 +14,10 @@
 (define SCENE-SIZE (* WIDTH HEIGHT))
 
 ; graphical constants
-(define MT (empty-scene SCENE-SIZE SCENE-SIZE 'black))
-(define SHIP (circle RADIUS 'solid 'gray))
-(define CAPSULE
+(define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
+(define UFO (circle RADIUS 'solid 'gray))
+(define TANK (square WIDTH 'solid 'white))
+(define MISSILE
   (overlay
    (rectangle (- (/ RADIUS 4) 2) (- RADIUS 2) 'solid 'white)
    (rectangle (/ RADIUS 4) RADIUS 'solid 'gray)))
@@ -37,6 +38,8 @@
 
 (define WORLD0 (make-world (make-tank (make-posn 0 0) '())
                            (make-ufo (make-posn 1 1) "right")))
+(define WORLD1 (make-world (make-tank (make-posn 100 100) '())
+                           (make-ufo (make-posn 10 10) "right")))
 
 ; A Tank is a structure:
 ; (make-tank Posn Missile)
@@ -62,3 +65,58 @@
 (define UFO0 (make-ufo (make-posn 0 0) ""))
 (define UFO1 (make-ufo (make-posn 1 1) "right"))
 (define UFO2 (make-ufo (make-posn 0 1) "left"))
+
+; Functions
+
+; World -> Image
+; consumes a world and renders the state to the screen
+
+(check-expect
+ (render-world
+  (make-world
+   (make-tank (make-posn 9 9) '()) (make-ufo (make-posn 0 0) "")))
+ (place-image TANK 9 9
+              (place-image UFO 0 0 SCENE)))
+
+(define (fn-render-world w)
+  (cond
+    [(empty? (tank-missile (world-tank w)))
+     (... ... (posn-x (tank-position (world-tank w)))
+          (posn-y (tank-position (world-tank w)))
+     (... ... (posn-x (ufo-position (world-ufo w)))
+          (posn-y (ufo-position (world-ufo w))) SCENE))]
+    [else (... ... (posn-x (... (tank-missile (world-tank w))))
+               (posn-y (... (tank-missile (world-tank w))))
+               (fn-render-world
+                (make-world
+                 (make-tank (tank-position (world-tank w))
+                            (rest (tank-missile (world-tank w))))
+                 (world-ufo w))))]))
+
+(define (render-world w)
+  (cond
+    [(empty? (tank-missile (world-tank w)))
+     (place-image TANK (posn-x (tank-position (world-tank w)))
+          (posn-y (tank-position (world-tank w)))
+     (place-image UFO (posn-x (ufo-position (world-ufo w)))
+          (posn-y (ufo-position (world-ufo w))) SCENE))]
+    [else (place-image (posn-x (first (tank-missile (world-tank w))))
+               (posn-y  (first (tank-missile (world-tank w))))
+               (fn-render-world
+                (make-world
+                 (make-tank (tank-position (world-tank w))
+                            (rest (tank-missile (world-tank w))))
+                 (world-ufo w))))]))
+
+
+(define (ender-main rate)
+  (big-bang WORLD0
+    ;[on-tick tock rate]
+    [to-draw render-world]
+    ;[on-key control]
+    ;[stop-when last-world-connected? last-picture]
+    [state #t]
+    [name "Ender"]))
+
+; usage
+; (ender-main 1)
