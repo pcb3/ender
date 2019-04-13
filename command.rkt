@@ -40,6 +40,9 @@
                            (make-ufo (make-posn 1 1) "right")))
 (define WORLD1 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn 10 10) "right")))
+(define WORLD2 (make-world (make-tank (make-posn 100 100)
+                                      (list (make-posn 20 20)))
+                           (make-ufo (make-posn 10 10) "right")))
 
 ; A Tank is a structure:
 ; (make-tank Posn Missile)
@@ -83,8 +86,8 @@
     [(empty? (tank-missile (world-tank w)))
      (... ... (posn-x (tank-position (world-tank w)))
           (posn-y (tank-position (world-tank w)))
-     (... ... (posn-x (ufo-position (world-ufo w)))
-          (posn-y (ufo-position (world-ufo w))) SCENE))]
+          (... ... (posn-x (ufo-position (world-ufo w)))
+               (posn-y (ufo-position (world-ufo w))) SCENE))]
     [else (... ... (posn-x (... (tank-missile (world-tank w))))
                (posn-y (... (tank-missile (world-tank w))))
                (fn-render-world
@@ -97,16 +100,18 @@
   (cond
     [(empty? (tank-missile (world-tank w)))
      (place-image TANK (posn-x (tank-position (world-tank w)))
-          (posn-y (tank-position (world-tank w)))
-     (place-image UFO (posn-x (ufo-position (world-ufo w)))
-          (posn-y (ufo-position (world-ufo w))) SCENE))]
-    [else (place-image (posn-x (first (tank-missile (world-tank w))))
-               (posn-y  (first (tank-missile (world-tank w))))
-               (fn-render-world
-                (make-world
-                 (make-tank (tank-position (world-tank w))
-                            (rest (tank-missile (world-tank w))))
-                 (world-ufo w))))]))
+                  (posn-y (tank-position (world-tank w)))
+                  (place-image UFO (posn-x (ufo-position (world-ufo w)))
+                               (posn-y (ufo-position (world-ufo w))) SCENE))]
+    [else (place-image
+           MISSILE
+           (posn-x (first (tank-missile (world-tank w))))
+           (posn-y  (first (tank-missile (world-tank w))))
+           (render-world
+            (make-world
+             (make-tank (tank-position (world-tank w))
+                        (rest (tank-missile (world-tank w))))
+             (world-ufo w))))]))
 
 ; World Key -> World
 ; consumes a world and a key and outputs a new world
@@ -114,36 +119,36 @@
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
                                    (make-ufo (make-posn 1 1) "")) "")
               (make-world (make-tank (make-posn 0 0) '())
-                                   (make-ufo (make-posn 1 1) "")))
+                          (make-ufo (make-posn 1 1) "")))
 
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
                                    (make-ufo (make-posn 1 1) "")) " ")
               (make-world (make-tank (make-posn 0 0)
                                      (cons (make-posn 0 0) '()))
-                                   (make-ufo (make-posn 1 1) "")))
+                          (make-ufo (make-posn 1 1) "")))
 
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
                                    (make-ufo (make-posn 1 1) "")) "right")
               (make-world (make-tank (make-posn 1 0) '())
-                                   (make-ufo (make-posn 1 1) "")))
+                          (make-ufo (make-posn 1 1) "")))
 
 (check-expect (control (make-world (make-tank (make-posn 3 0) '())
                                    (make-ufo (make-posn 1 1) "")) "left")
               (make-world (make-tank (make-posn 2 0) '())
-                                   (make-ufo (make-posn 1 1) "")))
+                          (make-ufo (make-posn 1 1) "")))
 
 (define (fn-control w key)
   (cond
     [(string=? key "right")
      (make-world
       (make-tank (make-posn (... (posn-x (tank-position (world-tank w))))
-                 (posn-y (tank-position (world-tank w))))
+                            (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
     [(string=? key "left")
      (make-world
       (make-tank (make-posn (... (posn-x (tank-position (world-tank w))))
-                 (posn-y (tank-position (world-tank w))))
+                            (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
     [(string=? key " ")
@@ -154,17 +159,17 @@
     [else w]))
 
 (define (control w key)
-   (cond
+  (cond
     [(string=? key "right")
      (make-world
       (make-tank (make-posn (add1 (posn-x (tank-position (world-tank w))))
-                 (posn-y (tank-position (world-tank w))))
+                            (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
     [(string=? key "left")
      (make-world
       (make-tank (make-posn (sub1 (posn-x (tank-position (world-tank w))))
-                 (posn-y (tank-position (world-tank w))))
+                            (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
     [(string=? key " ")
