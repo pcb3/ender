@@ -21,8 +21,8 @@
 (define TANK (square SIZE 'solid 'white))
 (define MISSILE
   (overlay
-   (rectangle (- (/ RADIUS 4) 2) (- RADIUS 2) 'solid 'white)
-   (rectangle (/ RADIUS 4) RADIUS 'solid 'gray)))
+   (rectangle (- (/ RADIUS 4) 2) (- (/ RADIUS 2) 2) 'solid 'white)
+   (rectangle (/ RADIUS 4) (/ RADIUS 2) 'solid 'gray)))
 (define SURFACE (rectangle (- SCENE-SIZE 1) (- SIZE 1) 'solid 'lightgray))
 (define SCENE
   (place-image SURFACE (/ SCENE-SIZE 2) (- SCENE-SIZE (/ SIZE 2)) MT))
@@ -127,7 +127,7 @@
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
                                    (make-ufo (make-posn 1 1) "")) " ")
               (make-world (make-tank (make-posn 0 0)
-                                     (cons (make-posn 0 380) '()))
+                                     (cons (make-posn 0 350) '()))
                           (make-ufo (make-posn 1 1) "")))
 
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
@@ -179,7 +179,8 @@
      (make-world
       (make-tank (tank-position (world-tank w))
                  (cons (make-posn (posn-x (tank-position (world-tank w)))
-                                  (- SCENE-SIZE RADIUS)) (tank-missile (world-tank w))))
+                                  (- SCENE-SIZE (+ (* RADIUS 2) (/ RADIUS 2))))
+                                  (tank-missile (world-tank w))))
       (world-ufo w))]
     [else w]))
 
@@ -190,7 +191,7 @@
                                 (make-ufo (make-posn 10 10) "")))
               (make-world
                (make-tank (make-posn 0 0) '())
-               (make-ufo (make-posn (- 10 SIZE) (+ 10 SIZE)) "")))
+               (make-ufo (make-posn 10 (+ 10 SIZE)) "")))
 
 (check-expect (tock (make-world (make-tank (make-posn 0 0)
                                            (cons (make-posn 20 40) '()))
@@ -198,7 +199,7 @@
               (make-world
                (make-tank (make-posn 0 0)
                           (cons (make-posn 20 (- 40 SIZE)) '()))
-               (make-ufo (make-posn (- 10 SIZE) (+ 10 SIZE)) "")))
+               (make-ufo (make-posn 10 (+ 10 SIZE)) "")))
 
 (check-expect (tock (make-world (make-tank (make-posn 0 0)
                                            (cons (make-posn 20 40) '()))
@@ -246,10 +247,11 @@
    (make-ufo
     (make-posn
      (cond
-       [else
-        (if (string=? "right" (ufo-direction (world-ufo w)))
-            (+ (posn-x (ufo-position (world-ufo w))) SIZE)
-            (- (posn-x (ufo-position (world-ufo w))) SIZE))])
+       [(string=? "right" (ufo-direction (world-ufo w)))
+            (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
+       [(string=? "left" (ufo-direction (world-ufo w)))
+            (- (posn-x (ufo-position (world-ufo w))) SIZE)]
+       [else (posn-x (ufo-position (world-ufo w)))])
      (+ (posn-y (ufo-position (world-ufo w))) SIZE))
     (ufo-direction (world-ufo w)))))
 
@@ -299,13 +301,13 @@
 
 (define (fn-last-world? w)
   (cond
-    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE RADIUS))
+    [else (if (>= (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE (* RADIUS 2)))
               ...
               ...)]))
 
 (define (last-world? w)
   (cond
-    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE RADIUS))
+    [else (if (>= (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE (* RADIUS 2)))
               #true
               #false)]))
 
