@@ -165,13 +165,13 @@
   (cond
     [(string=? key "right")
      (make-world
-      (make-tank (make-posn (add1 (posn-x (tank-position (world-tank w))))
+      (make-tank (make-posn (+ SIZE (posn-x (tank-position (world-tank w))) SIZE)
                             (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
     [(string=? key "left")
      (make-world
-      (make-tank (make-posn (sub1 (posn-x (tank-position (world-tank w))))
+      (make-tank (make-posn (- (posn-x (tank-position (world-tank w))) SIZE)
                             (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
@@ -330,7 +330,6 @@
                (render-world (make-world (world-tank w)
                                              (world-ufo w)))))
                
-
 ; main function
 
 (define (ender-main rate)
@@ -340,7 +339,8 @@
     [on-key control]
     [stop-when last-world? last-picture]
     [state #t]
-    [name "Command"]))
+    [name "Command"]
+    [close-on-stop 3]))
 
 ; usage
 ; (ender-main 1)
