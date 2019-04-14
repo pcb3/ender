@@ -10,20 +10,21 @@
 ; physical constants
 (define RADIUS 20)
 (define WIDTH 20)
-(define HEIGHT 20)
-(define SCENE-SIZE (* WIDTH HEIGHT))
+(define SIZE 20)
+(define SCENE-SIZE (* WIDTH SIZE))
+(define MAX (+ 1 (- SCENE-SIZE SIZE)))
 
 ; graphical constants
 (define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
 (define UFO (circle RADIUS 'solid 'gray))
-(define TANK (square WIDTH 'solid 'white))
+(define TANK (square SIZE 'solid 'white))
 (define MISSILE
   (overlay
    (rectangle (- (/ RADIUS 4) 2) (- RADIUS 2) 'solid 'white)
    (rectangle (/ RADIUS 4) RADIUS 'solid 'gray)))
-(define SURFACE (rectangle (- SCENE-SIZE 1) (- HEIGHT 1) 'solid 'lightgray))
+(define SURFACE (rectangle (- SCENE-SIZE 1) (- SIZE 1) 'solid 'lightgray))
 (define SCENE
-  (place-image SURFACE (/ SCENE-SIZE 2) (- SCENE-SIZE (/ HEIGHT 2)) MT))
+  (place-image SURFACE (/ SCENE-SIZE 2) (- SCENE-SIZE (/ SIZE 2)) MT))
 
 ; structures
 (define-struct world [tank ufo])
@@ -178,6 +179,108 @@
                  (cons (make-posn 0 0) (tank-missile (world-tank w))))
       (world-ufo w))]
     [else w]))
+
+; World > World
+; consumes a world and outputs a new world each tick every rate seconds
+
+(check-expect (tock (make-world (make-tank (make-posn 0 0) '())
+                                (make-ufo (make-posn 10 10) "")))
+              (make-world
+               (make-tank (make-posn 0 0) '())
+               (make-ufo (make-posn (- 10 SIZE) (+ 10 SIZE)) "")))
+
+(check-expect (tock (make-world (make-tank (make-posn 0 0)
+                                           (cons (make-posn 20 40) '()))
+                                (make-ufo (make-posn 10 10) "")))
+              (make-world
+               (make-tank (make-posn 0 0)
+                          (cons (make-posn 20 (- 40 SIZE)) '()))
+               (make-ufo (make-posn (- 10 SIZE) (+ 10 SIZE)) "")))
+
+(check-expect (tock (make-world (make-tank (make-posn 0 0)
+                                           (cons (make-posn 20 40) '()))
+                                (make-ufo (make-posn 10 10) "right")))
+              (make-world
+               (make-tank (make-posn 0 0)
+                          (cons (make-posn 20 (- 40 SIZE)) '()))
+               (make-ufo
+                (make-posn (+ 10 SIZE) (+ 10 SIZE)) "right")))
+
+(check-expect (tock (make-world (make-tank (make-posn 0 0)
+                                           (cons (make-posn 20 40) '()))
+                                (make-ufo (make-posn 40 40) "left")))
+              (make-world
+               (make-tank (make-posn 0 0)
+                          (cons (make-posn 20 (- 40 SIZE)) '()))
+               (make-ufo
+                (make-posn (- 40 SIZE) (+ 40 SIZE)) "left")))
+
+(define (fn-tock w)
+  (make-world
+   (make-tank (tank-position (world-tank w))
+              (cond
+                [else (if (empty? (tank-missile (world-tank w)))
+                          (tank-missile (world-tank w))
+                          (... w))]))
+   (make-ufo
+    (make-posn
+     (cond
+       [else
+        (if (string=? "right" (ufo-direction (world-ufo w)))
+            (... (posn-x (ufo-position (world-ufo w))) ...)
+            (... (posn-x (ufo-position (world-ufo w))) ...))])
+     (... (posn-y (ufo-position (world-ufo w))) ...))
+    (ufo-direction (world-ufo w)))))
+                     
+
+(define (tock w)
+  (make-world
+   (make-tank (tank-position (world-tank w))
+              (cond
+                [else (if (empty? (tank-missile (world-tank w)))
+                          (tank-missile (world-tank w))
+                          (update-missile (tank-missile (world-tank w))))]))
+   (make-ufo
+    (make-posn
+     (cond
+       [else
+        (if (string=? "right" (ufo-direction (world-ufo w)))
+            (+ (posn-x (ufo-position (world-ufo w))) SIZE)
+            (- (posn-x (ufo-position (world-ufo w))) SIZE))])
+     (+ (posn-y (ufo-position (world-ufo w))) SIZE))
+    (ufo-direction (world-ufo w)))))
+
+; Missile -> Missile
+; consumes a missile m and updates the list of missiles by SIZE
+
+(check-expect (update-missile '()) '())
+
+(check-expect
+ (update-missile (cons (make-posn 20 100) '()))
+ (cons (make-posn 20 (- 100 SIZE)) '()))
+
+(check-expect
+ (update-missile (cons (make-posn 20 100)
+                       (cons (make-posn 20 160) '())))
+ (cons (make-posn 20 (- 100 SIZE))
+       (cons (make-posn 20 (- 160 SIZE)) '())))
+
+
+(define (fn-update-missile m)
+  (cond
+    [(empty? m) ...]
+    [else (... (make-posn (posn-x (first m))
+                          (... posn-y (first m)) ...)
+               (fn-update-missile (rest m)))]))
+
+(define (update-missile m)
+  (cond
+    [(empty? m) '()]
+    [else (cons (make-posn (posn-x (first m))
+                           (- (posn-y (first m)) SIZE))
+                (update-missile (rest m)))]))
+
+; main function
 
 (define (ender-main rate)
   (big-bang WORLD0
