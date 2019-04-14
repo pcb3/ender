@@ -42,9 +42,10 @@
                            (make-ufo (make-posn 1 1) "right")))
 (define WORLD1 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn 10 10) "right")))
-(define WORLD2 (make-world (make-tank (make-posn 100 100)
-                                      (list (make-posn 20 20)))
-                           (make-ufo (make-posn 10 10) "right")))
+(define WORLD2 (make-world (make-tank (make-posn (/ SCENE-SIZE 2)
+                                                 (- SCENE-SIZE (+ RADIUS (/ RADIUS 2))))
+                                      '())
+                           (make-ufo (make-posn (/ SCENE-SIZE 2) RADIUS) "")))
 
 ; A Tank is a structure:
 ; (make-tank Posn Missile)
@@ -126,7 +127,7 @@
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
                                    (make-ufo (make-posn 1 1) "")) " ")
               (make-world (make-tank (make-posn 0 0)
-                                     (cons (make-posn 0 0) '()))
+                                     (cons (make-posn 0 380) '()))
                           (make-ufo (make-posn 1 1) "")))
 
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
@@ -177,7 +178,8 @@
     [(string=? key " ")
      (make-world
       (make-tank (tank-position (world-tank w))
-                 (cons (make-posn 0 0) (tank-missile (world-tank w))))
+                 (cons (make-posn (posn-x (tank-position (world-tank w)))
+                                  (- SCENE-SIZE RADIUS)) (tank-missile (world-tank w))))
       (world-ufo w))]
     [else w]))
 
@@ -285,25 +287,25 @@
 ; consumes a world w and outputs true if the condition
 ; for the final scene is met
 
-(check-expect (last-world
+(check-expect (last-world?
                (make-world (make-tank (make-posn 40 40) '())
                            (make-ufo (make-posn 60 60) "")))
               #false)
 
-(check-expect (last-world
+(check-expect (last-world?
                (make-world (make-tank (make-posn 40 40) '())
-                           (make-ufo (make-posn 10 (- SCENE-SIZE (- SIZE 1))) "")))
+                           (make-ufo (make-posn 10 (- SCENE-SIZE (- RADIUS 1))) "")))
               #true)
 
 (define (fn-last-world? w)
   (cond
-    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE SIZE))
+    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE RADIUS))
               ...
               ...)]))
 
-(define (last-world w)
+(define (last-world? w)
   (cond
-    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE SIZE))
+    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE RADIUS))
               #true
               #false)]))
 
@@ -330,11 +332,11 @@
 ; main function
 
 (define (ender-main rate)
-  (big-bang WORLD0
+  (big-bang WORLD2
     [on-tick tock rate]
     [to-draw render-world]
     [on-key control]
-    ;[stop-when last-world? last-picture]
+    [stop-when last-world? last-picture]
     [state #t]
     [name "Command"]))
 
