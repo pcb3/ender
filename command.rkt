@@ -13,6 +13,7 @@
 (define SIZE 20)
 (define SCENE-SIZE (* WIDTH SIZE))
 (define MAX (+ 1 (- SCENE-SIZE SIZE)))
+(define LAST-MSG (text "GAME OVER" SIZE 'black))
 
 ; graphical constants
 (define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
@@ -305,6 +306,26 @@
     [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE SIZE))
               #true
               #false)]))
+
+; World -> Image
+; consumes a world w and outputs the final scene
+
+(check-expect (last-picture (make-world (make-tank (make-posn 10 10) '())
+                                        (make-ufo (make-posn 100 100) "")))
+              (place-image
+               LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+               (render-world (make-world (make-tank (make-posn 10 10) '())
+                                        (make-ufo (make-posn 100 100) "")))))
+
+(define (fn-last-picture w)
+  (... ... ... ... (render-world (make-world (world-tank w)
+                                             (world-ufo w)))))
+
+(define (last-picture w)
+  (place-image LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+               (render-world (make-world (world-tank w)
+                                             (world-ufo w)))))
+               
 
 ; main function
 
