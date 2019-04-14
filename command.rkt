@@ -280,16 +280,42 @@
                            (- (posn-y (first m)) SIZE))
                 (update-missile (rest m)))]))
 
+; World -> Boolean
+; consumes a world w and outputs true if the condition
+; for the final scene is met
+
+(check-expect (last-world
+               (make-world (make-tank (make-posn 40 40) '())
+                           (make-ufo (make-posn 60 60) "")))
+              #false)
+
+(check-expect (last-world
+               (make-world (make-tank (make-posn 40 40) '())
+                           (make-ufo (make-posn 10 (- SCENE-SIZE (- SIZE 1))) "")))
+              #true)
+
+(define (fn-last-world? w)
+  (cond
+    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE SIZE))
+              ...
+              ...)]))
+
+(define (last-world w)
+  (cond
+    [else (if (> (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE SIZE))
+              #true
+              #false)]))
+
 ; main function
 
 (define (ender-main rate)
   (big-bang WORLD0
-    ;[on-tick tock rate]
+    [on-tick tock rate]
     [to-draw render-world]
     [on-key control]
-    ;[stop-when last-world-connected? last-picture]
+    ;[stop-when last-world? last-picture]
     [state #t]
-    [name "Ender"]))
+    [name "Command"]))
 
 ; usage
 ; (ender-main 1)
