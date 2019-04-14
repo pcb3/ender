@@ -132,12 +132,12 @@
 
 (check-expect (control (make-world (make-tank (make-posn 0 0) '())
                                    (make-ufo (make-posn 1 1) "")) "right")
-              (make-world (make-tank (make-posn 1 0) '())
+              (make-world (make-tank (make-posn 20 0) '())
                           (make-ufo (make-posn 1 1) "")))
 
-(check-expect (control (make-world (make-tank (make-posn 3 0) '())
+(check-expect (control (make-world (make-tank (make-posn 20 0) '())
                                    (make-ufo (make-posn 1 1) "")) "left")
-              (make-world (make-tank (make-posn 2 0) '())
+              (make-world (make-tank (make-posn 0 0) '())
                           (make-ufo (make-posn 1 1) "")))
 
 (define (fn-control w key)
@@ -165,7 +165,7 @@
   (cond
     [(string=? key "right")
      (make-world
-      (make-tank (make-posn (+ SIZE (posn-x (tank-position (world-tank w))) SIZE)
+      (make-tank (make-posn (+ (posn-x (tank-position (world-tank w))) SIZE)
                             (posn-y (tank-position (world-tank w))))
                  (tank-missile (world-tank w)))
       (world-ufo w))]
@@ -183,6 +183,44 @@
                                   (tank-missile (world-tank w))))
       (world-ufo w))]
     [else w]))
+
+; World -> Boolean
+; consumes a world w and outputs true if the tank has exceeded the boundary
+; of the game screen
+
+(check-expect (tank-boundary? (make-world (make-tank (make-posn 0 10) '())
+                                          (make-ufo (make-posn 20 20) "")))
+              #false)
+
+(check-expect (tank-boundary? (make-world (make-tank (make-posn -1 10) '())
+                                          (make-ufo (make-posn 20 20) "")))
+              #true)
+
+(check-expect (tank-boundary? (make-world (make-tank (make-posn 400 10) '())
+                                          (make-ufo (make-posn 20 20) "")))
+              #false)
+
+(check-expect (tank-boundary? (make-world (make-tank (make-posn 401 10) '())
+                                          (make-ufo (make-posn 20 20) "")))
+              #true)
+
+(define (fn-tank-boundary? w)
+  (cond
+    [(< (posn-x (tank-position (world-tank w))) 0)
+     ...]
+    [(> (posn-x (tank-position (world-tank w))) SCENE-SIZE)
+     ...]
+    [else
+     ...]))
+
+(define (tank-boundary? w)
+  (cond
+    [(< (posn-x (tank-position (world-tank w))) 0)
+     #true]
+    [(> (posn-x (tank-position (world-tank w))) SCENE-SIZE)
+     #true]
+    [else
+     #false]))
 
 ; World > World
 ; consumes a world and outputs a new world each tick every rate seconds
