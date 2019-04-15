@@ -352,19 +352,29 @@
 
 (check-expect (last-world?
                (make-world (make-tank (make-posn 40 40) '())
-                           (make-ufo (make-posn 10 (- SCENE-SIZE (- RADIUS 1))) "")))
+                           (make-ufo
+                            (make-posn 10 (- SCENE-SIZE (- RADIUS 1))) "")))
+              #true)
+
+(check-expect (last-world?
+               (make-world (make-tank (make-posn 40 40)
+                                      (cons (make-posn 100 100) '()))
+                           (make-ufo (make-posn 100 100) "")))
               #true)
 
 (define (fn-last-world? w)
   (cond
-    [else (if (>= (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE (* RADIUS 2)))
+    [else (if (or (>= (posn-y (ufo-position (world-ufo w)))
+                  (- SCENE-SIZE (* RADIUS 2)))
+                  (ufo-missile-collision? w))
               ...
               ...)]))
 
 (define (last-world? w)
   (cond
-    [else (if (>= (posn-y (ufo-position (world-ufo w)))
+    [else (if (or (>= (posn-y (ufo-position (world-ufo w)))
                   (- SCENE-SIZE (* RADIUS 2)))
+                  (ufo-missile-collision? w))
               #true
               #false)]))
 
