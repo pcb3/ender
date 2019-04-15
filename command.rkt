@@ -247,7 +247,7 @@
                                 (make-ufo (make-posn 10 10) "")))
               (make-world
                (make-tank (make-posn 0 0) '())
-               (make-ufo (make-posn 10 (+ 10 SIZE)) "")))
+               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
 
 (check-expect (tock (make-world (make-tank (make-posn 0 0)
                                            (cons (make-posn 20 40) '()))
@@ -255,7 +255,7 @@
               (make-world
                (make-tank (make-posn 0 0)
                           (cons (make-posn 20 (- 40 SIZE)) '()))
-               (make-ufo (make-posn 10 (+ 10 SIZE)) "")))
+               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
 
 (check-expect (tock (make-world (make-tank (make-posn 0 0)
                                            (cons (make-posn 20 40) '()))
@@ -264,7 +264,7 @@
                (make-tank (make-posn 0 0)
                           (cons (make-posn 20 (- 40 SIZE)) '()))
                (make-ufo
-                (make-posn (+ 10 SIZE) (+ 10 SIZE)) "right")))
+                (make-posn (+ 10 SIZE) (+ 10 (/ SIZE 2))) "right")))
 
 (check-expect (tock (make-world (make-tank (make-posn 0 0)
                                            (cons (make-posn 20 40) '()))
@@ -273,7 +273,7 @@
                (make-tank (make-posn 0 0)
                           (cons (make-posn 20 (- 40 SIZE)) '()))
                (make-ufo
-                (make-posn (- 40 SIZE) (+ 40 SIZE)) "left")))
+                (make-posn (- 40 SIZE) (+ 40 (/ SIZE 2))) "left")))
 
 (define (fn-tock w)
   (make-world
@@ -308,7 +308,7 @@
        [(string=? "left" (ufo-direction (world-ufo w)))
         (- (posn-x (ufo-position (world-ufo w))) SIZE)]
        [else (posn-x (ufo-position (world-ufo w)))])
-     (+ (posn-y (ufo-position (world-ufo w))) SIZE))
+     (+ (posn-y (ufo-position (world-ufo w))) (/ SIZE 2)))
     (ufo-direction (world-ufo w)))))
 
 ; Missile -> Missile
@@ -363,7 +363,8 @@
 
 (define (last-world? w)
   (cond
-    [else (if (>= (posn-y (ufo-position (world-ufo w))) (- SCENE-SIZE (* RADIUS 2)))
+    [else (if (>= (posn-y (ufo-position (world-ufo w)))
+                  (- SCENE-SIZE (* RADIUS 2)))
               #true
               #false)]))
 
