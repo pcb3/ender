@@ -164,23 +164,41 @@
 (define (control w key)
   (cond
     [(string=? key "right")
-     (make-world
-      (make-tank (make-posn (+ (posn-x (tank-position (world-tank w))) SIZE)
-                            (posn-y (tank-position (world-tank w))))
-                 (tank-missile (world-tank w)))
-      (world-ufo w))]
+     (cond
+       [(tank-boundary?
+         (make-world
+          (make-tank (make-posn (+ (posn-x (tank-position (world-tank w))) SIZE)
+                                (posn-y (tank-position (world-tank w))))
+                     (tank-missile (world-tank w)))
+          (world-ufo w)))
+        w]
+       [else
+        (make-world
+         (make-tank (make-posn (+ (posn-x (tank-position (world-tank w))) SIZE)
+                               (posn-y (tank-position (world-tank w))))
+                    (tank-missile (world-tank w)))
+         (world-ufo w))])]
     [(string=? key "left")
-     (make-world
-      (make-tank (make-posn (- (posn-x (tank-position (world-tank w))) SIZE)
-                            (posn-y (tank-position (world-tank w))))
-                 (tank-missile (world-tank w)))
-      (world-ufo w))]
+     (cond
+       [(tank-boundary?
+         (make-world
+          (make-tank (make-posn (- (posn-x (tank-position (world-tank w))) SIZE)
+                                (posn-y (tank-position (world-tank w))))
+                     (tank-missile (world-tank w)))
+          (world-ufo w)))
+        w]
+        [else 
+         (make-world
+          (make-tank (make-posn (- (posn-x (tank-position (world-tank w))) SIZE)
+                                (posn-y (tank-position (world-tank w))))
+                     (tank-missile (world-tank w)))
+          (world-ufo w))])]
     [(string=? key " ")
      (make-world
       (make-tank (tank-position (world-tank w))
                  (cons (make-posn (posn-x (tank-position (world-tank w)))
                                   (- SCENE-SIZE (+ (* RADIUS 2) (/ RADIUS 2))))
-                                  (tank-missile (world-tank w))))
+                       (tank-missile (world-tank w))))
       (world-ufo w))]
     [else w]))
 
@@ -286,9 +304,9 @@
     (make-posn
      (cond
        [(string=? "right" (ufo-direction (world-ufo w)))
-            (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
+        (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
        [(string=? "left" (ufo-direction (world-ufo w)))
-            (- (posn-x (ufo-position (world-ufo w))) SIZE)]
+        (- (posn-x (ufo-position (world-ufo w))) SIZE)]
        [else (posn-x (ufo-position (world-ufo w)))])
      (+ (posn-y (ufo-position (world-ufo w))) SIZE))
     (ufo-direction (world-ufo w)))))
@@ -357,7 +375,7 @@
               (place-image
                LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
                (render-world (make-world (make-tank (make-posn 10 10) '())
-                                        (make-ufo (make-posn 100 100) "")))))
+                                         (make-ufo (make-posn 100 100) "")))))
 
 (define (fn-last-picture w)
   (... ... ... ... (render-world (make-world (world-tank w)
@@ -366,7 +384,7 @@
 (define (last-picture w)
   (place-image LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
                (render-world (make-world (world-tank w)
-                                             (world-ufo w)))))
+                                         (world-ufo w)))))
                
 ; main function
 
