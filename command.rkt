@@ -386,7 +386,44 @@
   (place-image LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
                (render-world (make-world (world-tank w)
                                          (world-ufo w)))))
-               
+
+; World -> Boolean
+; consumes a world w and outputs true if a a missile and ufo
+; share the same point
+
+(check-expect (ufo-missile-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 100) '()))
+                           (make-ufo (make-posn 200 100) "")))
+              #true)
+
+(check-expect (ufo-missile-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 100) '()))
+                           (make-ufo (make-posn 200 190) "")))
+              #false)
+
+(check-expect (ufo-missile-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 100) '()))
+                           (make-ufo (make-posn 180 100) "")))
+              #false)
+
+(define (fn-ufo-missile-collision? w)
+  (cond
+    [else (if (member? (ufo-position (world-ufo w))
+                       (tank-missile (world-tank w)))
+              ...
+              ...)]))
+
+(define (ufo-missile-collision? w)
+  (cond
+    [else (if (member? (ufo-position (world-ufo w))
+                       (tank-missile (world-tank w)))
+              #true
+              #false)]))
+              
+
 ; main function
 
 (define (ender-main rate)
