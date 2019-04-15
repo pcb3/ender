@@ -21,8 +21,8 @@
 (define TANK (square SIZE 'solid 'white))
 (define MISSILE
   (overlay
-   (rectangle (- (/ RADIUS 4) 2) (- (/ RADIUS 2) 2) 'solid 'white)
-   (rectangle (/ RADIUS 4) (/ RADIUS 2) 'solid 'gray)))
+   (rectangle (- (/ SIZE 4) 2) (- (/ SIZE 2) 2) 'solid 'white)
+   (rectangle (/ SIZE 4) (/ SIZE 2) 'solid 'gray)))
 (define SURFACE (rectangle (- SCENE-SIZE 1) (- SIZE 1) 'solid 'lightgray))
 (define SCENE
   (place-image SURFACE (/ SCENE-SIZE 2) (- SCENE-SIZE (/ SIZE 2)) MT))
@@ -43,9 +43,9 @@
 (define WORLD1 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn 10 10) "right")))
 (define WORLD2 (make-world (make-tank (make-posn (/ SCENE-SIZE 2)
-                                                 (- SCENE-SIZE (+ RADIUS (/ RADIUS 2))))
+                                                 (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
                                       '())
-                           (make-ufo (make-posn (/ SCENE-SIZE 2) RADIUS) "")))
+                           (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "")))
 
 ; A Tank is a structure:
 ; (make-tank Posn Missile)
@@ -187,17 +187,17 @@
                      (tank-missile (world-tank w)))
           (world-ufo w)))
         w]
-        [else 
-         (make-world
-          (make-tank (make-posn (- (posn-x (tank-position (world-tank w))) SIZE)
-                                (posn-y (tank-position (world-tank w))))
-                     (tank-missile (world-tank w)))
-          (world-ufo w))])]
+       [else 
+        (make-world
+         (make-tank (make-posn (- (posn-x (tank-position (world-tank w))) SIZE)
+                               (posn-y (tank-position (world-tank w))))
+                    (tank-missile (world-tank w)))
+         (world-ufo w))])]
     [(string=? key " ")
      (make-world
       (make-tank (tank-position (world-tank w))
                  (cons (make-posn (posn-x (tank-position (world-tank w)))
-                                  (- SCENE-SIZE (+ (* RADIUS 2) (/ RADIUS 2))))
+                                  (- SCENE-SIZE (+ (* SIZE 2) (/ SIZE 2))))
                        (tank-missile (world-tank w))))
       (world-ufo w))]
     [else w]))
@@ -365,7 +365,7 @@
 (define (fn-last-world? w)
   (cond
     [else (if (or (>= (posn-y (ufo-position (world-ufo w)))
-                  (- SCENE-SIZE (* RADIUS 2)))
+                      (- SCENE-SIZE (* RADIUS 2)))
                   (ufo-missile-collision? w))
               ...
               ...)]))
@@ -373,7 +373,7 @@
 (define (last-world? w)
   (cond
     [else (if (or (>= (posn-y (ufo-position (world-ufo w)))
-                  (- SCENE-SIZE (* RADIUS 2)))
+                      (- SCENE-SIZE (* RADIUS 2)))
                   (ufo-missile-collision? w))
               #true
               #false)]))
@@ -399,7 +399,7 @@
 
 ; World -> Boolean
 ; consumes a world w and outputs true if a a missile and ufo
-; share the same point
+; collide
 
 (check-expect (ufo-missile-collision?
                (make-world (make-tank (make-posn 0 0)
@@ -421,18 +421,97 @@
 
 (define (fn-ufo-missile-collision? w)
   (cond
-    [else (if (member? (ufo-position (world-ufo w))
-                       (tank-missile (world-tank w)))
+    [(empty? (tank-missile (world-tank w))) ...]
+    [else (if (... (... (tank-missile (world-tank w))))
               ...
-              ...)]))
+              (fn-ufo-missile-collision?
+               (make-world
+                (make-tank (tank-position (world-tank w))
+                           (rest (tank-missile (world-tank w))))
+                (world-ufo w))))]))
 
 (define (ufo-missile-collision? w)
   (cond
-    [else (if (member? (ufo-position (world-ufo w))
-                       (tank-missile (world-tank w)))
+    [(empty? (tank-missile (world-tank w))) #false]
+    [else (if (encounter-hitbox? (first (tank-missile (world-tank w))))
               #true
-              #false)]))
-              
+              (fn-ufo-missile-collision?
+               (make-world
+                (make-tank (tank-position (world-tank w))
+                           (rest (tank-missile (world-tank w))))
+                (world-ufo w))))]))
+
+; World Posn -> Boolean
+; consumes a world w and a Posn p and outputs true if the hitboxes
+; overlap
+
+(check-expect (ufo-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 100) '()))
+                           (make-ufo (make-posn 220 100) "")))
+              #true)
+
+(check-expect (ufo-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 100) '()))
+                           (make-ufo (make-posn 180 100) "")))
+              #true)
+
+(check-expect (ufo-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 80) '()))
+                           (make-ufo (make-posn 200 100) "")))
+              #true)
+
+(check-expect (ufo-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 110) '()))
+                           (make-ufo (make-posn 200 100) "")))
+              #true)
+
+(check-expect (ufo-collision?
+               (make-world (make-tank (make-posn 0 0)
+                                      (cons (make-posn 200 100) '()))
+                           (make-ufo (make-posn 160 160) "")))
+              #false)
+
+(define (fn-ufo-collision? w)
+  (cond
+    [(and
+      (>= (+ (posn-x (first (tank-missile (world-tank w))))
+             (+ RADIUS (/ SIZE 8)))
+          (posn-x (ufo-position (world-ufo w))))
+      (<= (+ (posn-x (first (tank-missile (world-tank w))))
+             (+ RADIUS (/ SIZE 4)))
+          (posn-x (ufo-position (world-ufo w))))
+      (>= (posn-y (first (tank-missile (world-tank w))))
+          (+ (posn-y (ufo-position (world-ufo w)))
+             (+ RADIUS (/ SIZE 4))))
+      (<= (+ (posn-y (first (tank-missile (world-tank w))))
+             (+ RADIUS (/ SIZE 4)))
+          (posn-y (ufo-position (world-ufo w)))))
+     ...]
+    [else
+     ...]))
+          
+(define (ufo-collision? w)
+  (cond
+    [(and
+      (>= (+ (posn-x (first (tank-missile (world-tank w))))
+             (+ RADIUS (/ SIZE 8)))
+          (posn-x (ufo-position (world-ufo w))))
+      (<= (+ (posn-x (first (tank-missile (world-tank w))))
+             (+ RADIUS (/ SIZE 4)))
+          (posn-x (ufo-position (world-ufo w))))
+      (<= (posn-y (first (tank-missile (world-tank w))))
+          (+ (posn-y (ufo-position (world-ufo w)))
+             (+ RADIUS (/ SIZE 4))))
+      (>= (+ (posn-y (first (tank-missile (world-tank w))))
+             (+ RADIUS (/ SIZE 4)))
+          (posn-y (ufo-position (world-ufo w)))))
+     #true]
+    [else
+     #false])) 
 
 ; main function
 
