@@ -417,12 +417,12 @@
                (make-world (make-tank (make-posn 0 0)
                                       (cons (make-posn 200 100) '()))
                            (make-ufo (make-posn 180 100) "")))
-              #false)
+              #true)
 
 (define (fn-ufo-missile-collision? w)
   (cond
     [(empty? (tank-missile (world-tank w))) ...]
-    [else (if (... (... (tank-missile (world-tank w))))
+    [else (if (... w (... (tank-missile (world-tank w))))
               ...
               (fn-ufo-missile-collision?
                (make-world
@@ -433,9 +433,9 @@
 (define (ufo-missile-collision? w)
   (cond
     [(empty? (tank-missile (world-tank w))) #false]
-    [else (if (encounter-hitbox? (first (tank-missile (world-tank w))))
+    [else (if (encounter-hitbox? w (first (tank-missile (world-tank w))))
               #true
-              (fn-ufo-missile-collision?
+              (ufo-missile-collision?
                (make-world
                 (make-tank (tank-position (world-tank w))
                            (rest (tank-missile (world-tank w))))
@@ -445,73 +445,68 @@
 ; consumes a world w and a Posn p and outputs true if the hitboxes
 ; overlap
 
-(check-expect (ufo-collision?
+(check-expect (encounter-hitbox?
                (make-world (make-tank (make-posn 0 0)
                                       (cons (make-posn 200 100) '()))
-                           (make-ufo (make-posn 220 100) "")))
+                           (make-ufo (make-posn 220 100) ""))
+               (make-posn 200 100))
               #true)
 
-(check-expect (ufo-collision?
+(check-expect (encounter-hitbox?
                (make-world (make-tank (make-posn 0 0)
                                       (cons (make-posn 200 100) '()))
-                           (make-ufo (make-posn 180 100) "")))
+                           (make-ufo (make-posn 180 100) ""))
+               (make-posn 200 100))
               #true)
 
-(check-expect (ufo-collision?
+(check-expect (encounter-hitbox?
                (make-world (make-tank (make-posn 0 0)
                                       (cons (make-posn 200 80) '()))
-                           (make-ufo (make-posn 200 100) "")))
+                           (make-ufo (make-posn 200 100) ""))
+               (make-posn 200 80))
               #true)
 
-(check-expect (ufo-collision?
+(check-expect (encounter-hitbox?
                (make-world (make-tank (make-posn 0 0)
                                       (cons (make-posn 200 110) '()))
-                           (make-ufo (make-posn 200 100) "")))
+                           (make-ufo (make-posn 200 100) ""))
+               (make-posn 200 110))
               #true)
 
-(check-expect (ufo-collision?
+(check-expect (encounter-hitbox?
                (make-world (make-tank (make-posn 0 0)
                                       (cons (make-posn 200 100) '()))
-                           (make-ufo (make-posn 160 160) "")))
+                           (make-ufo (make-posn 160 160) ""))
+               (make-posn 200 100))
               #false)
 
-(define (fn-ufo-collision? w)
+(define (fn-encounter-hitbox? w p)
   (cond
-    [(and
-      (>= (+ (posn-x (first (tank-missile (world-tank w))))
-             (+ RADIUS (/ SIZE 8)))
-          (posn-x (ufo-position (world-ufo w))))
-      (<= (+ (posn-x (first (tank-missile (world-tank w))))
-             (+ RADIUS (/ SIZE 4)))
-          (posn-x (ufo-position (world-ufo w))))
-      (>= (posn-y (first (tank-missile (world-tank w))))
-          (+ (posn-y (ufo-position (world-ufo w)))
-             (+ RADIUS (/ SIZE 4))))
-      (<= (+ (posn-y (first (tank-missile (world-tank w))))
-             (+ RADIUS (/ SIZE 4)))
-          (posn-y (ufo-position (world-ufo w)))))
+    [(and (... (... (posn-y (ufo-position (world-ufo w))) ...)
+               (posn-y p))
+          (... (posn-y (ufo-position (world-ufo w)))
+               (... (posn-y p) ...))
+          (... (... (posn-x (ufo-position (world-ufo w))) ...)
+               (posn-x p))
+          (... (posn-x (ufo-position (world-ufo w)))
+               (... (posn-x p) ...)))
      ...]
     [else
      ...]))
-          
-(define (ufo-collision? w)
+
+(define (encounter-hitbox? w p)
   (cond
-    [(and
-      (>= (+ (posn-x (first (tank-missile (world-tank w))))
-             (+ RADIUS (/ SIZE 8)))
-          (posn-x (ufo-position (world-ufo w))))
-      (<= (+ (posn-x (first (tank-missile (world-tank w))))
-             (+ RADIUS (/ SIZE 4)))
-          (posn-x (ufo-position (world-ufo w))))
-      (<= (posn-y (first (tank-missile (world-tank w))))
-          (+ (posn-y (ufo-position (world-ufo w)))
-             (+ RADIUS (/ SIZE 4))))
-      (>= (+ (posn-y (first (tank-missile (world-tank w))))
-             (+ RADIUS (/ SIZE 4)))
-          (posn-y (ufo-position (world-ufo w)))))
+    [(and (>= (+ (posn-y (ufo-position (world-ufo w))) (+ RADIUS (/ RADIUS 4)))
+              (posn-y p))
+          (<= (posn-y (ufo-position (world-ufo w)))
+              (+ (posn-y p) (+ RADIUS (/ RADIUS 4))))
+          (>= (+ (posn-x (ufo-position (world-ufo w))) (+ RADIUS (/ RADIUS 4)))
+              (posn-x p))
+          (<= (posn-x (ufo-position (world-ufo w)))
+              (+ (posn-x p) (+ RADIUS (/ RADIUS 4)))))
      #true]
     [else
-     #false])) 
+     #false]))
 
 ; main function
 
