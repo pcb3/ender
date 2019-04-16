@@ -47,9 +47,11 @@
                            (make-ufo (make-posn 1 1) "right")))
 (define WORLD1 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn 10 10) "right")))
-(define WORLD2 (make-world (make-tank (make-posn (/ SCENE-SIZE 2)
-                                                 (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
-                                      '())
+(define WORLD2 (make-world (make-tank
+                            (make-posn
+                             (/ SCENE-SIZE 2)
+                             (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
+                            '())
                            (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "")))
 
 ; A Tank is a structure:
@@ -566,6 +568,39 @@
                 (place-image INSTRUCTION-MSG2
                              (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
                              SCENE))))
+
+; World -> Boolean
+; consumes a world w and outputs true if the game is in its initial state
+; for the first time
+
+(check-expect (start?
+               (make-world (make-tank
+                            (make-posn
+                             (/ SCENE-SIZE 2)
+                             (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
+                            '())
+                           (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "")))
+              #true)
+
+(check-expect (start?
+               (make-world (make-tank
+                            (make-posn
+                             (/ SCENE-SIZE 2)
+                             (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
+                            '())
+                           (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "left")))
+              #false)
+
+(define (fn-start? w)
+  (cond
+    [else (if (equal? WORLD2 w)
+              ... ...)]))
+              
+
+(define (start? w)
+  (cond
+    [else (if (equal? WORLD2 w)
+              #true #false)]))
 
 ; main function
 
