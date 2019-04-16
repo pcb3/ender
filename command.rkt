@@ -309,7 +309,7 @@
         (- (posn-x (ufo-position (world-ufo w))) SIZE)]
        [else (posn-x (ufo-position (world-ufo w)))])
      (+ (posn-y (ufo-position (world-ufo w))) (/ SIZE 2)))
-    (ufo-direction (world-ufo w)))))
+    (ufo-direction (world-ufo (direction-random w))))))
 
 ; Missile -> Missile
 ; consumes a missile m and updates the list of missiles by SIZE
@@ -514,19 +514,19 @@
 (define (fn-direction-random w)
   (cond
     [else (if (zero? (random ...))
-              (make-world (world-ufo w)
-                          (make-tank (ufo-position (world-ufo w)) ...))
-              (make-world (world-ufo w)
-                          (make-tank (ufo-position (world-ufo w)) ...)))]))
+              (make-world (world-tank w)
+                          (make-ufo (ufo-position (world-ufo w)) ...))
+              (make-world (world-tank w)
+                          (make-ufo (ufo-position (world-ufo w)) ...)))]))
 
 (define (direction-random w)
   (cond
     [else (if (zero? (random 2))
-              (make-world (world-ufo w)
-                          (make-tank
+              (make-world (world-tank w)
+                          (make-ufo
                            (ufo-position (world-ufo w)) "left"))
-              (make-world (world-ufo w)
-                          (make-tank
+              (make-world (world-tank w)
+                          (make-ufo
                            (ufo-position (world-ufo w)) "right")))]))
 
 ; main function
