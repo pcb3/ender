@@ -13,11 +13,16 @@
 (define SIZE 20)
 (define SCENE-SIZE (* WIDTH SIZE))
 (define MAX (+ 1 (- SCENE-SIZE SIZE)))
+(define START-MSG (text "WELCOME TO COMMAND!" SIZE 'black))
+(define INSTRUCTION-MSG1 (text "TANK MOVES WITH DIRECTION KEYS"
+                               SIZE 'black))
+(define INSTRUCTION-MSG2 (text "PRESS SPACE TO FIRE A MISSILE"
+                               SIZE 'black))
 (define LAST-MSG (text "GAME OVER" SIZE 'black))
 
 ; graphical constants
 (define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
-(define UFO (circle RADIUS 'solid 'gray))
+(define UFO (circle RADIUS 'solid 'silver))
 (define TANK (square SIZE 'solid 'white))
 (define MISSILE
   (overlay
@@ -528,6 +533,39 @@
               (make-world (world-tank w)
                           (make-ufo
                            (ufo-position (world-ufo w)) "right")))]))
+
+; World -> Image
+; consumes a world w and outputs a start-screen
+
+(check-expect (start (make-world (make-tank (make-posn 0 0) '())
+                                 (make-ufo (make-posn 0 0) "")))
+              (place-image START-MSG
+                           (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
+                           (place-image
+                            INSTRUCTION-MSG1
+                            (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+                            (place-image INSTRUCTION-MSG2
+                                         (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
+                                         SCENE))))
+(define (fn-start w)
+  (... START-SCREEN
+       (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
+       (...
+        INSTRUCTION-MSG1
+        (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+        (... INSTRUCTION-MSG2
+             (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
+             SCENE))))
+
+(define (start w)
+  (place-image START-MSG
+               (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
+               (place-image
+                INSTRUCTION-MSG1
+                (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+                (place-image INSTRUCTION-MSG2
+                             (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
+                             SCENE))))
 
 ; main function
 
