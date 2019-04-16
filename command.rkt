@@ -14,10 +14,12 @@
 (define SCENE-SIZE (* WIDTH SIZE))
 (define MAX (+ 1 (- SCENE-SIZE SIZE)))
 (define START-MSG (text "WELCOME TO COMMAND!" SIZE 'black))
-(define INSTRUCTION-MSG1 (text "TANK MOVES WITH DIRECTION KEYS"
-                               SIZE 'black))
+(define INSTRUCTION-MSG1 (text "MOVE TANK WITH THE DIRECTION KEYS"
+                               16 'black))
 (define INSTRUCTION-MSG2 (text "PRESS SPACE TO FIRE A MISSILE"
-                               SIZE 'black))
+                               16 'black))
+(define INSTRUCTION-MSG3 (text "PRESS SPACE TO START"
+                               16 'silver))
 (define LAST-MSG (text "GAME OVER" SIZE 'black))
 
 ; graphical constants
@@ -312,22 +314,22 @@
   (cond
     [(start? w) w]
     [else
-  (make-world
-   (make-tank (tank-position (world-tank w))
-              (cond
-                [else (if (empty? (tank-missile (world-tank w)))
-                          (tank-missile (world-tank w))
-                          (update-missile (tank-missile (world-tank w))))]))
-   (make-ufo
-    (make-posn
-     (cond
-       [(string=? "right" (ufo-direction (world-ufo w)))
-        (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
-       [(string=? "left" (ufo-direction (world-ufo w)))
-        (- (posn-x (ufo-position (world-ufo w))) SIZE)]
-       [else (posn-x (ufo-position (world-ufo w)))])
-     (+ (posn-y (ufo-position (world-ufo w))) (/ SIZE 2)))
-    (ufo-direction (world-ufo (direction-random w)))))]))
+     (make-world
+      (make-tank (tank-position (world-tank w))
+                 (cond
+                   [else (if (empty? (tank-missile (world-tank w)))
+                             (tank-missile (world-tank w))
+                             (update-missile (tank-missile (world-tank w))))]))
+      (make-ufo
+       (make-posn
+        (cond
+          [(string=? "right" (ufo-direction (world-ufo w)))
+           (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [(string=? "left" (ufo-direction (world-ufo w)))
+           (- (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [else (posn-x (ufo-position (world-ufo w)))])
+        (+ (posn-y (ufo-position (world-ufo w))) (/ SIZE 2)))
+       (ufo-direction (world-ufo (direction-random w)))))]))
 
 ; Missile -> Missile
 ; consumes a missile m and updates the list of missiles by SIZE
@@ -558,8 +560,12 @@
                             INSTRUCTION-MSG1
                             (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
                             (place-image INSTRUCTION-MSG2
-                                         (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
-                                         SCENE))))
+                                         (/ SCENE-SIZE 2)
+                                         (/ SCENE-SIZE 1.5)
+                                         (place-image INSTRUCTION-MSG3
+                                                      (/ SCENE-SIZE 2)
+                                                      (/ SCENE-SIZE 1.25)
+                                                      SCENE)))))
 (define (fn-start w)
   (... START-SCREEN
        (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
@@ -578,7 +584,9 @@
                 (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
                 (place-image INSTRUCTION-MSG2
                              (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
-                             SCENE))))
+                             (place-image INSTRUCTION-MSG3
+                                          (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.25)
+                                          SCENE)))))
 
 ; World -> Boolean
 ; consumes a world w and outputs true if the game is in its initial state
