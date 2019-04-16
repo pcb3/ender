@@ -508,6 +508,27 @@
     [else
      #false]))
 
+; World -> World
+; consumes a world w and outputs new world with an updated direction for ufo
+
+(define (fn-direction-random w)
+  (cond
+    [else (if (zero? (random ...))
+              (make-world (world-ufo w)
+                          (make-tank (ufo-position (world-ufo w)) ...))
+              (make-world (world-ufo w)
+                          (make-tank (ufo-position (world-ufo w)) ...)))]))
+
+(define (direction-random w)
+  (cond
+    [else (if (zero? (random 2))
+              (make-world (world-ufo w)
+                          (make-tank
+                           (ufo-position (world-ufo w)) "left"))
+              (make-world (world-ufo w)
+                          (make-tank
+                           (ufo-position (world-ufo w)) "right")))]))
+
 ; main function
 
 (define (ender-main rate)
