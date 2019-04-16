@@ -108,6 +108,7 @@
 
 (define (render-world w)
   (cond
+    [(start? w) (start w)]
     [(empty? (tank-missile (world-tank w)))
      (place-image TANK (posn-x (tank-position (world-tank w)))
                   (posn-y (tank-position (world-tank w)))
@@ -170,6 +171,13 @@
 
 (define (control w key)
   (cond
+    [(and (start? w) (string=? "left" key)) w]
+    [(and (start? w) (string=? "right" key)) w]
+    [(and (start? w) (string=? " " key))
+     (make-world
+      (world-tank w)
+      (make-ufo (ufo-position (world-ufo w))
+                (ufo-direction (world-ufo (direction-random w)))))]
     [(string=? key "right")
      (cond
        [(tank-boundary?
@@ -301,6 +309,9 @@
                      
 
 (define (tock w)
+  (cond
+    [(start? w) w]
+    [else
   (make-world
    (make-tank (tank-position (world-tank w))
               (cond
@@ -316,7 +327,7 @@
         (- (posn-x (ufo-position (world-ufo w))) SIZE)]
        [else (posn-x (ufo-position (world-ufo w)))])
      (+ (posn-y (ufo-position (world-ufo w))) (/ SIZE 2)))
-    (ufo-direction (world-ufo (direction-random w))))))
+    (ufo-direction (world-ufo (direction-random w)))))]))
 
 ; Missile -> Missile
 ; consumes a missile m and updates the list of missiles by SIZE
