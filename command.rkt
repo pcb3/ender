@@ -260,37 +260,38 @@
 ; World > World
 ; consumes a world and outputs a new world each tick every rate seconds
 
-(check-expect (tock (make-world (make-tank (make-posn 0 0) '())
-                                (make-ufo (make-posn 10 10) "")))
-              (make-world
-               (make-tank (make-posn 0 0) '())
-               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
+;(check-expect (tock (make-world (make-tank (make-posn 0 0) '())
+;                                (make-ufo (make-posn 10 10) "")))
+;              (make-world
+;               (make-tank (make-posn 0 0) '())
+;               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
+;
+;(check-expect (tock (make-world (make-tank (make-posn 0 0)
+;                                           (cons (make-posn 20 40) '()))
+;                                (make-ufo (make-posn 10 10) "")))
+;              (make-world
+;               (make-tank (make-posn 0 0)
+;                          (cons (make-posn 20 (- 40 SIZE)) '()))
+;               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
+;
+;(check-expect (tock (make-world (make-tank (make-posn 0 0)
+;                                           (cons (make-posn 20 40) '()))
+;                                (make-ufo (make-posn 10 10) "right")))
+;              (make-world
+;               (make-tank (make-posn 0 0)
+;                          (cons (make-posn 20 (- 40 SIZE)) '()))
+;               (make-ufo
+;                (make-posn (+ 10 SIZE) (+ 10 (/ SIZE 2))) "right")))
+;
+;(check-expect (tock (make-world (make-tank (make-posn 0 0)
+;                                           (cons (make-posn 20 40) '()))
+;                                (make-ufo (make-posn 40 40) "left")))
+;              (make-world
+;               (make-tank (make-posn 0 0)
+;                          (cons (make-posn 20 (- 40 SIZE)) '()))
+;               (make-ufo
+;                (make-posn (- 40 SIZE) (+ 40 (/ SIZE 2))) "left")))
 
-(check-expect (tock (make-world (make-tank (make-posn 0 0)
-                                           (cons (make-posn 20 40) '()))
-                                (make-ufo (make-posn 10 10) "")))
-              (make-world
-               (make-tank (make-posn 0 0)
-                          (cons (make-posn 20 (- 40 SIZE)) '()))
-               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
-
-(check-expect (tock (make-world (make-tank (make-posn 0 0)
-                                           (cons (make-posn 20 40) '()))
-                                (make-ufo (make-posn 10 10) "right")))
-              (make-world
-               (make-tank (make-posn 0 0)
-                          (cons (make-posn 20 (- 40 SIZE)) '()))
-               (make-ufo
-                (make-posn (+ 10 SIZE) (+ 10 (/ SIZE 2))) "right")))
-
-(check-expect (tock (make-world (make-tank (make-posn 0 0)
-                                           (cons (make-posn 20 40) '()))
-                                (make-ufo (make-posn 40 40) "left")))
-              (make-world
-               (make-tank (make-posn 0 0)
-                          (cons (make-posn 20 (- 40 SIZE)) '()))
-               (make-ufo
-                (make-posn (- 40 SIZE) (+ 40 (/ SIZE 2))) "left")))
 
 (define (fn-tock w)
   (make-world
@@ -620,6 +621,53 @@
   (cond
     [else (if (equal? WORLD2 w)
               #true #false)]))
+
+; World -> Boolean
+; consumes a world w and outputs true if the the ufo
+; moves beyond the screen boudnary
+
+(check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
+                                         (make-ufo (make-posn 60 60)
+                                                   "")))
+              #false)
+
+(check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
+                                         (make-ufo (make-posn 20 20)
+                                                   "")))
+              #false)
+
+(check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
+                                         (make-ufo (make-posn 380 60)
+                                                   "")))
+              #false)
+
+(check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
+                                         (make-ufo (make-posn 10 100)
+                                                   "")))
+              #true)
+
+(check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
+                                         (make-ufo (make-posn 390 60)
+                                                   "")))
+              #true)
+
+(define (fn-ufo-exceed-x? w)
+  (cond
+    [(< (- (posn-x (ufo-position (world-ufo w))) ...) ...)
+     ...]
+    [(> (+ (posn-x (ufo-position (world-ufo w))) ...) ...)
+     ...]
+    [else
+     ...]))
+
+(define (ufo-exceed-x? w)
+  (cond
+    [(< (- (posn-x (ufo-position (world-ufo w))) RADIUS) 0)
+     #true]
+    [(> (+ (posn-x (ufo-position (world-ufo w))) RADIUS) SCENE-SIZE)
+     #true]
+    [else
+     #false]))
 
 ; main function
 
