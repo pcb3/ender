@@ -176,10 +176,11 @@
     [(and (start? w) (string=? "left" key)) w]
     [(and (start? w) (string=? "right" key)) w]
     [(and (start? w) (string=? " " key))
-     (make-world
-      (world-tank w)
-      (make-ufo (ufo-position (world-ufo w))
-                (ufo-direction (world-ufo (direction-random w)))))]
+     (ufo-random-x
+      (make-world
+       (world-tank w)
+       (make-ufo (ufo-position (world-ufo w))
+                 (ufo-direction (world-ufo (direction-random w))))))]
     [(string=? key "right")
      (cond
        [(tank-boundary?
@@ -675,27 +676,27 @@
 ; for the ufo not exceeding the screen boundary
 
 (check-random (ufo-random-x (make-world (make-tank (make-posn 0 0) '())
-                                         (make-ufo (make-posn 10 20)
-                                                   "")))
+                                        (make-ufo (make-posn 10 20)
+                                                  "")))
               (make-world (make-tank (make-posn 0 0) '())
-                                         (make-ufo (make-posn
-                                                    (check-x (+ SCENE-SIZE 1))
-                                                    20)
-                                                   "")))
+                          (make-ufo (make-posn
+                                     (check-x (+ SCENE-SIZE 1))
+                                     20)
+                                    "")))
 
 (define (fn-ufo-random-x w)
-    (make-world (world-tank w)
-                (make-ufo
-                 (make-posn
-                  (check-x (random (... ... ...)))
-                  (posn-y (ufo-position (world-ufo w)))) ...)))
+  (make-world (world-tank w)
+              (make-ufo
+               (make-posn
+                (check-x (random (... ... ...)))
+                (posn-y (ufo-position (world-ufo w)))) ...)))
 
 (define (ufo-random-x w)
   (make-world (world-tank w)
-                (make-ufo
-                 (make-posn
-                  (check-x (random (+ SCENE-SIZE 1)))
-                  (posn-y (ufo-position (world-ufo w)))) "")))
+              (make-ufo
+               (make-posn
+                (check-x (random (+ SCENE-SIZE 1)))
+                (posn-y (ufo-position (world-ufo w)))) "")))
 
 ; Number -> Number
 ; comsumes a number n and checks if it is within the screen boundary and
