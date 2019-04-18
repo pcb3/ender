@@ -13,14 +13,14 @@
 (define SIZE 20)
 (define SCENE-SIZE (* WIDTH SIZE))
 (define MAX (+ 1 (- SCENE-SIZE SIZE)))
-(define START-MSG (text "WELCOME TO COMMAND!" SIZE 'black))
+(define START-MSG (text "WELCOME TO COMMAND!" SIZE 'white))
 (define INSTRUCTION-MSG1 (text "MOVE TANK WITH THE DIRECTION KEYS"
                                16 'lightgray))
 (define INSTRUCTION-MSG2 (text "PRESS SPACE TO FIRE A MISSILE"
                                16 'lightgray))
 (define INSTRUCTION-MSG3 (text "PRESS SPACE TO START"
                                16 'white))
-(define LAST-MSG (text "GAME OVER" SIZE 'black))
+(define LAST-MSG (text "GAME OVER" SIZE 'white))
 
 ; graphical constants
 (define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
