@@ -55,6 +55,8 @@
                              (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
                             '())
                            (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "")))
+(define WORLD3 (make-world (make-tank (make-posn 100 100) '())
+                           (make-ufo (make-posn SCENE-SIZE 20) "")))
 
 ; A Tank is a structure:
 ; (make-tank Posn Missile)
@@ -325,7 +327,10 @@
       (make-ufo
        (make-posn
         (cond
-          [(ufo-exceed-x? w) (posn-x (ufo-position (world-ufo w)))]
+          [(>= (posn-x (ufo-position (world-ufo w))) (- SCENE-SIZE RADIUS))
+           (- (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [(<= (posn-x (ufo-position (world-ufo w))) RADIUS)
+           (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
           [(string=? "right" (ufo-direction (world-ufo w)))
            (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
           [(string=? "left" (ufo-direction (world-ufo w)))
@@ -634,12 +639,12 @@
               #false)
 
 (check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
-                                         (make-ufo (make-posn 20 20)
+                                         (make-ufo (make-posn 21 20)
                                                    "")))
               #false)
 
 (check-expect (ufo-exceed-x? (make-world (make-tank (make-posn 0 0) '())
-                                         (make-ufo (make-posn 380 60)
+                                         (make-ufo (make-posn 379 60)
                                                    "")))
               #false)
 
@@ -664,9 +669,9 @@
 
 (define (ufo-exceed-x? w)
   (cond
-    [(< (- (posn-x (ufo-position (world-ufo w))) RADIUS) 0)
+    [(<= (- (posn-x (ufo-position (world-ufo w))) RADIUS) 0)
      #true]
-    [(> (+ (posn-x (ufo-position (world-ufo w))) RADIUS) SCENE-SIZE)
+    [(>= (+ (posn-x (ufo-position (world-ufo w))) RADIUS) SCENE-SIZE)
      #true]
     [else
      #false]))
