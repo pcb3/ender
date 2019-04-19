@@ -1,32 +1,35 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname command) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-; A space-war simulation
+; Command: a space-war simulation
 
 ; requires
+
 (require 2htdp/universe)
 (require 2htdp/image)
 
 ; physical constants
+
 (define RADIUS 20)
 (define WIDTH 20)
 (define SIZE 20)
 (define SCENE-SIZE (* WIDTH SIZE))
 (define MAX (+ 1 (- SCENE-SIZE SIZE)))
-(define START-MSG (text "WELCOME TO COMMAND!" SIZE 'white))
+(define START-MSG (text "COMMAND!" (* SIZE 2) 'white))
 (define INSTRUCTION-MSG1 (text "MOVE TANK WITH THE DIRECTION KEYS"
                                16 'lightgray))
 (define INSTRUCTION-MSG2 (text "PRESS SPACE TO FIRE A MISSILE"
                                16 'lightgray))
 (define INSTRUCTION-MSG3 (text "PRESS SPACE TO START"
-                               16 'white))
-(define LAST-MSG (text "GAME OVER" SIZE 'white))
-(define VICTORY-MSG (text "VICTORY!" SIZE 'white))
-(define DEFEAT-MSG (text "DEFEAT!" SIZE 'WHITE))
-(define RESTART-MSG (text "PRESS SPACE TO PLAY AGAIN OR Q TO QUIT"
-                          16 'white))
+                               16 'lightgray))
+(define LAST-MSG (text "GAME OVER" (* SIZE 2) 'white))
+(define VICTORY-MSG (text "VICTORY!" (* SIZE 2) 'white))
+(define DEFEAT-MSG (text "DEFEAT!" (* SIZE 2) 'white))
+(define RESTART-MSG (text "PRESS R TO PLAY AGAIN OR Q TO QUIT"
+                          16 'lightgray))
 
 ; graphical constants
+
 (define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
 (define UFO (circle RADIUS 'solid 'silver))
 (define TANK (square SIZE 'solid 'white))
@@ -39,8 +42,11 @@
   (place-image SURFACE (/ SCENE-SIZE 2) (- SCENE-SIZE (/ SIZE 2)) MT))
 
 ; structures
+
 (define-struct world [tank ufo])
+
 (define-struct tank [position missile])
+
 (define-struct ufo [position direction])
 
 ; A World is a structure:
@@ -51,16 +57,19 @@
 
 (define WORLD0 (make-world (make-tank (make-posn 0 0) '())
                            (make-ufo (make-posn 1 1) "right")))
+
 (define WORLD1 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn 10 10) "right")))
+
 (define WORLD2 (make-world (make-tank
                             (make-posn
                              (/ SCENE-SIZE 2)
-                             (- SCENE-SIZE (+ SIZE (/ SIZE 2))))
-                            '())
+                             (- SCENE-SIZE (+ SIZE (/ SIZE 2)))) '())
                            (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "")))
+
 (define WORLD3 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn SCENE-SIZE 20) "")))
+
 (define END-WORLD (make-world
                    (make-tank
                     (make-posn (/ SCENE-SIZE 2)
@@ -79,6 +88,7 @@
 ; x/y SIZE from the top-left corner of the game-screen.
 
 (define TANK0 (make-tank (make-posn 9 9) '()))
+
 (define TANK1 (make-tank (make-posn 9 9) (cons (make-posn 1 1) '())))
 
 ; A Ufo is a structure:
@@ -89,7 +99,9 @@
 ; "right" that dictates the next direction of movement.
 
 (define UFO0 (make-ufo (make-posn 0 0) ""))
+
 (define UFO1 (make-ufo (make-posn 1 1) "right"))
+
 (define UFO2 (make-ufo (make-posn 0 1) "left"))
 
 ; Functions
@@ -195,7 +207,7 @@
                  (ufo-direction (world-ufo (direction-random w))))))]
     [(last-world? w)
      (cond
-       [(string=? " " key) WORLD2]
+       [(string=? "r" key) WORLD2]
        [(string=? "q" key) END-WORLD]
        [else w])]
     [(string=? key "right")
@@ -278,38 +290,37 @@
 ; World > World
 ; consumes a world and outputs a new world each tick every rate seconds
 
-;(check-expect (tock (make-world (make-tank (make-posn 0 0) '())
-;                                (make-ufo (make-posn 10 10) "")))
-;              (make-world
-;               (make-tank (make-posn 0 0) '())
-;               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
-;
-;(check-expect (tock (make-world (make-tank (make-posn 0 0)
-;                                           (cons (make-posn 20 40) '()))
-;                                (make-ufo (make-posn 10 10) "")))
-;              (make-world
-;               (make-tank (make-posn 0 0)
-;                          (cons (make-posn 20 (- 40 SIZE)) '()))
-;               (make-ufo (make-posn 10 (+ 10 (/ SIZE 2))) "")))
-;
-;(check-expect (tock (make-world (make-tank (make-posn 0 0)
-;                                           (cons (make-posn 20 40) '()))
-;                                (make-ufo (make-posn 10 10) "right")))
-;              (make-world
-;               (make-tank (make-posn 0 0)
-;                          (cons (make-posn 20 (- 40 SIZE)) '()))
-;               (make-ufo
-;                (make-posn (+ 10 SIZE) (+ 10 (/ SIZE 2))) "right")))
-;
-;(check-expect (tock (make-world (make-tank (make-posn 0 0)
-;                                           (cons (make-posn 20 40) '()))
-;                                (make-ufo (make-posn 40 40) "left")))
-;              (make-world
-;               (make-tank (make-posn 0 0)
-;                          (cons (make-posn 20 (- 40 SIZE)) '()))
-;               (make-ufo
-;                (make-posn (- 40 SIZE) (+ 40 (/ SIZE 2))) "left")))
+(check-expect (checked-tock (make-world (make-tank (make-posn 0 0) '())
+                                        (make-ufo (make-posn 10 10) "")))
+              (make-world
+               (make-tank (make-posn 0 0) '())
+               (make-ufo (make-posn 30 (+ 10 (/ SIZE 2))) "")))
 
+(check-expect (checked-tock (make-world (make-tank (make-posn 0 0)
+                                                   (cons (make-posn 20 40) '()))
+                                        (make-ufo (make-posn 10 10) "")))
+              (make-world
+               (make-tank (make-posn 0 0)
+                          (cons (make-posn 20 (- 40 SIZE)) '()))
+               (make-ufo (make-posn 30 (+ 10 (/ SIZE 2))) "")))
+
+(check-expect (checked-tock (make-world (make-tank (make-posn 0 0)
+                                                   (cons (make-posn 20 40) '()))
+                                        (make-ufo (make-posn 10 10) "right")))
+              (make-world
+               (make-tank (make-posn 0 0)
+                          (cons (make-posn 20 (- 40 SIZE)) '()))
+               (make-ufo
+                (make-posn (+ 10 SIZE) (+ 10 (/ SIZE 2))) "right")))
+
+(check-expect (checked-tock (make-world (make-tank (make-posn 0 0)
+                                                   (cons (make-posn 20 40) '()))
+                                        (make-ufo (make-posn 40 40) "left")))
+              (make-world
+               (make-tank (make-posn 0 0)
+                          (cons (make-posn 20 40) '()))
+               (make-ufo
+                (make-posn 40 40) "left")))
 
 (define (fn-tock w)
   (make-world
@@ -327,7 +338,34 @@
             (... (posn-x (ufo-position (world-ufo w))) ...))])
      (... (posn-y (ufo-position (world-ufo w))) ...))
     (ufo-direction (world-ufo w)))))
-                     
+
+; a checked version of tock for testing
+
+(define (checked-tock w)
+  (cond
+    [(start? w) w]
+    [(last-world? w) w]
+    [else
+     (make-world
+      (make-tank (tank-position (world-tank w))
+                 (cond
+                   [else (if (empty? (tank-missile (world-tank w)))
+                             (tank-missile (world-tank w))
+                             (update-missile (tank-missile (world-tank w))))]))
+      (make-ufo
+       (make-posn
+        (cond
+          [(>= (posn-x (ufo-position (world-ufo w))) (- SCENE-SIZE RADIUS))
+           (- (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [(<= (posn-x (ufo-position (world-ufo w))) RADIUS)
+           (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [(string=? "right" (ufo-direction (world-ufo w)))
+           (+ (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [(string=? "left" (ufo-direction (world-ufo w)))
+           (- (posn-x (ufo-position (world-ufo w))) SIZE)]
+          [else (posn-x (ufo-position (world-ufo w)))])
+        (+ (posn-y (ufo-position (world-ufo w))) (/ SIZE 2)))
+       (ufo-direction (world-ufo w))))]))
 
 (define (tock w)
   (cond
@@ -369,7 +407,6 @@
                        (cons (make-posn 20 160) '())))
  (cons (make-posn 20 (- 100 SIZE))
        (cons (make-posn 20 (- 160 SIZE)) '())))
-
 
 (define (fn-update-missile m)
   (cond
@@ -426,7 +463,7 @@
 (check-expect (last-picture (make-world (make-tank (make-posn 10 10) '())
                                         (make-ufo (make-posn 100 100) "")))
               (place-image
-               LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+               LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
                (render-world (make-world (make-tank (make-posn 10 10) '())
                                          (make-ufo (make-posn 100 100) "")))))
 
@@ -435,7 +472,7 @@
                                              (world-ufo w)))))
 
 (define (last-picture w)
-  (place-image LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+  (place-image LAST-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
                (render-world (make-world (world-tank w)
                                          (world-ufo w)))))
 
@@ -577,17 +614,17 @@
 (check-expect (start (make-world (make-tank (make-posn 0 0) '())
                                  (make-ufo (make-posn 0 0) "")))
               (place-image START-MSG
-                           (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
+                           (/ SCENE-SIZE 2) (/ SCENE-SIZE 5)
                            (place-image
                             INSTRUCTION-MSG1
-                            (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+                            (/ SCENE-SIZE 2) (/ (* 2 SCENE-SIZE) 5)
                             (place-image INSTRUCTION-MSG2
-                                         (/ SCENE-SIZE 2)
-                                         (/ SCENE-SIZE 1.5)
+                                         (/ SCENE-SIZE 2) (/ (* 3 SCENE-SIZE) 5)
                                          (place-image INSTRUCTION-MSG3
                                                       (/ SCENE-SIZE 2)
-                                                      (/ SCENE-SIZE 1.25)
+                                                      (/ (* SCENE-SIZE 4) 5)
                                                       SCENE)))))
+
 (define (fn-start w)
   (... START-SCREEN
        (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
@@ -600,14 +637,14 @@
 
 (define (start w)
   (place-image START-MSG
-               (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
+               (/ SCENE-SIZE 2) (/ SCENE-SIZE 5)
                (place-image
                 INSTRUCTION-MSG1
-                (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+                (/ SCENE-SIZE 2) (/ (* 2 SCENE-SIZE) 5)
                 (place-image INSTRUCTION-MSG2
-                             (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.5)
+                             (/ SCENE-SIZE 2) (/ (* 3 SCENE-SIZE) 5)
                              (place-image INSTRUCTION-MSG3
-                                          (/ SCENE-SIZE 2) (/ SCENE-SIZE 1.25)
+                                          (/ SCENE-SIZE 2) (/ (* SCENE-SIZE 4) 5)
                                           SCENE)))))
 
 ; World -> Boolean
@@ -823,9 +860,9 @@
     [to-draw render-world]
     [on-key control]
     [stop-when end-game? last-picture]
-    [state #t]
+    [state #f]
     [name "Command"]
     [close-on-stop 3]))
 
 ; usage
-; (ender-main 1)
+(ender-main 0.2)
