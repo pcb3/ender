@@ -21,6 +21,9 @@
 (define INSTRUCTION-MSG3 (text "PRESS SPACE TO START"
                                16 'white))
 (define LAST-MSG (text "GAME OVER" SIZE 'white))
+(define VICTORY-MSG (text "VICTORY!" SIZE 'white))
+(define RESTART-MSG (text "PRESS SPACE TO PLAY AGAIN OR Q TO QUIT"
+                          16 'white))
 
 ; graphical constants
 (define MT (empty-scene SCENE-SIZE SCENE-SIZE 'darkgray))
@@ -57,6 +60,11 @@
                            (make-ufo (make-posn (/ SCENE-SIZE 2) SIZE) "")))
 (define WORLD3 (make-world (make-tank (make-posn 100 100) '())
                            (make-ufo (make-posn SCENE-SIZE 20) "")))
+(define END-WORLD (make-world
+                   (make-tank
+                    (make-posn (/ SCENE-SIZE 2)
+                               (- SCENE-SIZE (+ SIZE (/ SIZE 2)))) '())
+                   (make-ufo (make-posn 200 200) "")))
 
 ; A Tank is a structure:
 ; (make-tank Posn Missile)
@@ -113,6 +121,7 @@
 (define (render-world w)
   (cond
     [(start? w) (start w)]
+    [(last-world? w) (restart w)]
     [(empty? (tank-missile (world-tank w)))
      (place-image TANK (posn-x (tank-position (world-tank w)))
                   (posn-y (tank-position (world-tank w)))
@@ -183,6 +192,11 @@
        (world-tank w)
        (make-ufo (ufo-position (world-ufo w))
                  (ufo-direction (world-ufo (direction-random w))))))]
+    [(last-world? w)
+     (cond
+       [(string=? " " key) WORLD2]
+       [(string=? "q" key) END-WORLD]
+       [else w])]
     [(string=? key "right")
      (cond
        [(tank-boundary?
@@ -317,6 +331,7 @@
 (define (tock w)
   (cond
     [(start? w) w]
+    [(last-world? w) w]
     [else
      (make-world
       (make-tank (tank-position (world-tank w))
@@ -716,6 +731,65 @@
      n]
     [else (check-x (random (+ SCENE-SIZE 1)))]))
 
+; Boolean -> Boolean
+; consumes a world w and returns true if the world is END-WORLD,
+; and false otherwise
+
+(check-expect (end-game? WORLD2) #false)
+
+(check-expect (end-game? END-WORLD) #true)
+
+(define (fn-end-game? w)
+  (cond [else (if (equal? w END-WORLD)
+                  ...
+                  ...)]))
+
+(define (end-game? w)
+  (cond [else (if (equal? w END-WORLD)
+                  #true
+                  #false)]))
+
+; World -> Image
+; consumes a world w and renders and image to the screen
+
+(check-expect (restart (make-world (make-tank (make-posn 10 10) '())
+                                   (make-ufo (make-posn 100 100) "")))
+              (place-image
+               VICTORY-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 3)
+               (place-image
+                RESTART-MSG (/ SCENE-SIZE 2) (/ SCENE-SIZE 2)
+                (render-world (make-world (make-tank (make-posn 10 10) '())
+                                          (make-ufo (make-posn 100 100) ""))))))
+
+(define (fn-restart w)
+  (... ... ... ... (render-world (make-world (world-tank w)
+                                             (world-ufo w)))))
+
+(define (restart w)
+  (cond
+    [(empty? (tank-missile (world-tank w)))
+     (place-image
+      VICTORY-MSG
+      (/ SCENE-SIZE 2)
+      (/ SCENE-SIZE 3)
+      (place-image
+       RESTART-MSG
+       (/ SCENE-SIZE 2)
+       (/ SCENE-SIZE 2)
+       (place-image TANK (posn-x (tank-position (world-tank w)))
+                    (posn-y (tank-position (world-tank w)))
+                    (place-image UFO (posn-x (ufo-position (world-ufo w)))
+                                 (posn-y (ufo-position (world-ufo w))) SCENE))))]
+    [else (place-image
+           MISSILE
+           (posn-x (first (tank-missile (world-tank w))))
+           (posn-y  (first (tank-missile (world-tank w))))
+           (restart
+            (make-world
+             (make-tank (tank-position (world-tank w))
+                        (rest (tank-missile (world-tank w))))
+             (world-ufo w))))]))
+
 ; main function
 
 (define (ender-main rate)
@@ -723,7 +797,7 @@
     [on-tick tock rate]
     [to-draw render-world]
     [on-key control]
-    [stop-when last-world? last-picture]
+    [stop-when end-game? last-picture]
     [state #t]
     [name "Command"]
     [close-on-stop 3]))
