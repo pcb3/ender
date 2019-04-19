@@ -22,6 +22,7 @@
                                16 'white))
 (define LAST-MSG (text "GAME OVER" SIZE 'white))
 (define VICTORY-MSG (text "VICTORY!" SIZE 'white))
+(define DEFEAT-MSG (text "DEFEAT!" SIZE 'WHITE))
 (define RESTART-MSG (text "PRESS SPACE TO PLAY AGAIN OR Q TO QUIT"
                           16 'white))
 
@@ -407,16 +408,14 @@
 
 (define (fn-last-world? w)
   (cond
-    [else (if (or (>= (posn-y (ufo-position (world-ufo w)))
-                      (- SCENE-SIZE (* RADIUS 2)))
+    [else (if (or (landed? w)
                   (ufo-missile-collision? w))
               ...
               ...)]))
 
 (define (last-world? w)
   (cond
-    [else (if (or (>= (posn-y (ufo-position (world-ufo w)))
-                      (- SCENE-SIZE (* RADIUS 2)))
+    [else (if (or (landed? w)
                   (ufo-missile-collision? w))
               #true
               #false)]))
@@ -769,7 +768,10 @@
   (cond
     [(empty? (tank-missile (world-tank w)))
      (place-image
-      VICTORY-MSG
+      (cond
+        [else (if (landed? w)
+                  DEFEAT-MSG
+                  VICTORY-MSG)])
       (/ SCENE-SIZE 2)
       (/ SCENE-SIZE 3)
       (place-image
@@ -789,6 +791,29 @@
              (make-tank (tank-position (world-tank w))
                         (rest (tank-missile (world-tank w))))
              (world-ufo w))))]))
+
+; World -> Boolean
+; consumes a world w and outputs true if the ufo has landed
+
+(check-expect (landed? (make-world (make-tank (make-posn 10 10) '())
+                                   (make-ufo (make-posn 100 100) "")))
+              #false)
+
+(check-expect (landed? (make-world (make-tank (make-posn 10 10) '())
+                                   (make-ufo (make-posn 100 360) "")))
+              #true)
+
+(define (fn-landed? w)
+  (cond [else (if (>= (posn-y (ufo-position (world-ufo w)))
+                      (... ... (... ... ...)))
+                  ...
+                  ... )]))
+              
+(define (landed? w)
+  (cond [else (if (>= (posn-y (ufo-position (world-ufo w)))
+                      (- SCENE-SIZE (* RADIUS 2)))
+                  #true
+                  #false)]))
 
 ; main function
 
